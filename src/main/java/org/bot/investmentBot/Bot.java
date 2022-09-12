@@ -28,10 +28,6 @@ public class Bot {
 
     File file = new File("LOG.txt");
 
-
-
-    Commands commands;
-
     TelegramBot bot = new TelegramBot("5663048702:AAEwHRRut1Nib4nuEK3yDizZVj9c3QC8v28");
 
 
@@ -58,7 +54,7 @@ public class Bot {
                 "\uD83E\uDDED Время до сбора средств: " + remainingTime;
 
         System.err.println("Update is working!");
-        commands = new Commands(update, bot);
+
 
         if (update.message() != null) {
             System.err.println("MessageData");
@@ -71,7 +67,14 @@ public class Bot {
                     sendMessage(update.message().chat().id(), "©️Главное меню");
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDDA5 Инвестиции")) {
-                    investButtonRequest(update.message().chat().id(), investText);
+                    SendMessage sendMessage = new SendMessage(update.message().chat().id(), investText);
+                    InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+                    InlineKeyboardButton investButton = new InlineKeyboardButton("➕").callbackData("INVEST");
+                    InlineKeyboardButton flushButton = new InlineKeyboardButton("➖").callbackData("FLUSH");
+                    keyboardMarkup.addRow(investButton, flushButton);
+                    sendMessage.replyMarkup(keyboardMarkup);
+                    bot.execute(sendMessage);
+                    System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDCB3 Кошелёк")) {
                     sendMessage(update.message().chat().id(), String.format(
                             "\uD83E\uDD16 Ваш ID: %d\n" +
@@ -113,7 +116,6 @@ public class Bot {
                     DeleteMessage deleteMessage = new DeleteMessage(update.callbackQuery().from().id(), update.callbackQuery().message().messageId());
                     bot.execute(deleteMessage);
                     System.out.println("Message Deleted!");
-                    investButtonRequest(update.callbackQuery().from().id(), investText);
 
                 }
             }
@@ -131,16 +133,7 @@ public class Bot {
 
     }
 
-    private void investButtonRequest(long chatID, String investText){
-        SendMessage sendMessage = new SendMessage(chatID, investText);
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        InlineKeyboardButton investButton = new InlineKeyboardButton("➕").callbackData("INVEST");
-        InlineKeyboardButton flushButton = new InlineKeyboardButton("➖").callbackData("FLUSH");
-        keyboardMarkup.addRow(investButton, flushButton);
-        sendMessage.replyMarkup(keyboardMarkup);
-        bot.execute(sendMessage);
-        System.err.println("Sending Message");
-    }
+
 
     private void sendMessage(long chatID, String text) {
         SendMessage sendMessage = new SendMessage(chatID, text);
