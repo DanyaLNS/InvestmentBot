@@ -30,7 +30,6 @@ public class Bot {
 
 
 
-    Commands commands;
 
     TelegramBot bot = new TelegramBot("5663048702:AAEwHRRut1Nib4nuEK3yDizZVj9c3QC8v28");
 
@@ -58,7 +57,6 @@ public class Bot {
                 "\uD83E\uDDED Время до сбора средств: " + remainingTime;
 
         System.err.println("Update is working!");
-        commands = new Commands(update, bot);
 
         if (update.message() != null) {
             System.err.println("MessageData");
