@@ -79,7 +79,7 @@ public class Bot {
                     sendMessage(update.message().chat().id(), String.format(
                             "\uD83E\uDD16 Ваш ID: %d\n" +
                             "\uD83D\uDCC6 Профиль создан: %s\n" +
-                            "\uD83D\uDCB3 Ваш баланс: %.2f\n" +
+                            "\uD83D\uDCB3 Ваш баланс: %.2f₽\n" +
                             "\uD83D\uDC65 Партнеров: %d чел.", update.message().from().id(), remainingTime, balance, partners));
                 } else if (text.equals("⚙️ Настройки")) {
 
