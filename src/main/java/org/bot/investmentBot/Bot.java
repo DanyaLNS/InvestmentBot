@@ -24,6 +24,10 @@ import java.util.Properties;
 
 
 public class Bot {
+    String trainingLink = "https://telegra.ph/OBUCHENIE-BOTA-06-06";
+    String agreementLink = "https://telegra.ph/Licenziya-platformy-NL4-05-16";
+    String partnersInfoLink = "https://telegra.ph/PARTNERSKAYA-SISTEMA-06-06";
+    double percent = 4.2;
     long id;
     float balance;
 
@@ -40,6 +44,7 @@ public class Bot {
 
     static String buttons[] = {"\uD83D\uDDA5 Инвестиции", "\uD83D\uDCB3 Кошелёк", "⚙️ Настройки", "\uD83D\uDC54 Партнёрам", "\uD83D\uDCE0 Калькулятор", "\uD83D\uDDD3 Обучение"};
 
+
     public Bot() {
         System.err.println("Bot Started!");
         bot.setUpdatesListener(updates -> {
@@ -50,10 +55,12 @@ public class Bot {
 
     public void rss(Update update) {
 
-        String tempPropPath = getClientPropPath(update);
-        Properties tempProp = createProperties(tempPropPath);
-        initValues(tempProp);
-
+        if (update.message() != null) {
+            id = update.message().chat().id();
+            String tempPropPath = getClientPropPath(update);
+            Properties tempProp = createProperties(tempPropPath);
+            initValues(tempProp);
+        }
 
         System.err.println("Update is working!");
 
@@ -71,6 +78,7 @@ public class Bot {
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDCB3 Кошелёк")) {
                     sendWalletMessage(update);
+                    System.err.println("Sending Message");
                 } else if (text.equals("⚙️ Настройки")) {
                     sendSettingsMessage(update);
                     System.err.println("Sending Message");
@@ -83,6 +91,14 @@ public class Bot {
                 } else if (text.equals("\uD83D\uDDD3 Обучение")) {
                     sendTrainingMessage(update);
                     System.err.println("Sending Message");
+                } else {
+                    try {
+                        Float sum = Float.parseFloat(text);
+                        sendCalculatedMessage(update, sum);
+                    } catch (NumberFormatException ex) {
+                        System.err.println("Unknown type of message");
+                    }
+
                 }
             }
         } else if (update.callbackQuery() != null) {
@@ -91,9 +107,18 @@ public class Bot {
                 callbackForInvest(update);
             } else if (update.callbackQuery().data().equals("FLUSH")) {
                 callbackForFlush(update);
+            } else if (update.callbackQuery().data().equals("BRINGOUT")){
+                callbackForBringOut(update);
+            } else if (update.callbackQuery().data().equals("NOTIFICATIONS")){
+                callbackForNotifications(update);
+            }
+
+            else if(update.callbackQuery().data().equals("SOON")){
+                callbackForSoon(update);
             }
             logUpdate(update);
         }
+
     }
 
     String getClientPropPath(Update update) {
@@ -154,55 +179,62 @@ public class Bot {
     }
 
     void sendWalletMessage(Update update) {
-        String messageText = MessageCreator.getWalletText(update, remainingTime, balance, partner);
+        String messageText = MessageCreator.getWalletText(update, profileCreate, balance, partner);
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        // TODO доделать кол-бэки
         InlineKeyboardButton investButton = new InlineKeyboardButton("Пополнить").callbackData("SOON");
-        InlineKeyboardButton flushButton = new InlineKeyboardButton("Вывести").callbackData("SOON");
+        InlineKeyboardButton flushButton = new InlineKeyboardButton("Вывести").callbackData("BRINGOUT");
         keyboardMarkup.addRow(investButton, flushButton);
         sendMessage.replyMarkup(keyboardMarkup);
         bot.execute(sendMessage);
     }
-    void sendSettingsMessage(Update update){
-        String messageText = MessageCreator.getSettingsText(0,0,0,0);
+
+    void sendSettingsMessage(Update update) {
+        String messageText = MessageCreator.getSettingsText(0, 0, 0, 0);
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        // TODO доделать кол-бэки
         InlineKeyboardButton notificationsButton = new InlineKeyboardButton("Уведомления").callbackData("SOON");
         InlineKeyboardButton operationButton = new InlineKeyboardButton("Операции").callbackData("SOON");
-        InlineKeyboardButton informationButton = new InlineKeyboardButton("Информация").callbackData("SOON");
-        InlineKeyboardButton agreementButton = new InlineKeyboardButton("Соглашение").callbackData("SOON");
-        keyboardMarkup.addRow(notificationsButton, operationButton, informationButton, agreementButton);
+        InlineKeyboardButton informationButton = new InlineKeyboardButton("Информация").url(trainingLink);
+        InlineKeyboardButton agreementButton = new InlineKeyboardButton("Соглашение").url(agreementLink);
+        keyboardMarkup.addRow(notificationsButton, operationButton);
+        keyboardMarkup.addRow(informationButton, agreementButton);
         sendMessage.replyMarkup(keyboardMarkup);
         bot.execute(sendMessage);
     }
+
     void sendPartnerMessage(Update update) {
-        // TODO вставить ссылки после дополнения реферальной системы
         String messageText = MessageCreator.getPartnersText(deposit, partner, "", "");
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        InlineKeyboardButton partnerButton = new InlineKeyboardButton("➕ Как набрать партнеров?").callbackData("SOON");
+        InlineKeyboardButton partnerButton = new InlineKeyboardButton("➕ Как набрать партнеров?").url(partnersInfoLink);
         InlineKeyboardButton coopButton = new InlineKeyboardButton("Сотрудничество с нами").callbackData("SOON");
         keyboardMarkup.addRow(partnerButton, coopButton);
         sendMessage.replyMarkup(keyboardMarkup);
         bot.execute(sendMessage);
     }
-    void sendCalculatorMessage(Update update){
+
+    void sendCalculatorMessage(Update update) {
         String messageText = "Введите сумму, которую хотите рассчитать: ";
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
         bot.execute(sendMessage);
-        // TODO реализовать продолжение этого сообщения
     }
-    void sendTrainingMessage(Update update){
+    void sendCalculatedMessage(Update update, float sum){
+        String messageText = MessageCreator.getCaclulatorText(sum, percent);
+        SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
+        bot.execute(sendMessage);
+    }
+
+    void sendTrainingMessage(Update update) {
         String messageText = "\u2060 \uD83C\uDF93 Попал в бота, но не знаешь, что делать? Тогда ознакомься с нашим минутным обучением:";
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        InlineKeyboardButton trainingButton = new InlineKeyboardButton("➕ Открыть обучение").callbackData("SOON");
+        InlineKeyboardButton trainingButton = new InlineKeyboardButton("➕ Открыть обучение").url(trainingLink);
         keyboardMarkup.addRow(trainingButton);
         sendMessage.replyMarkup(keyboardMarkup);
         bot.execute(sendMessage);
     }
+
     private void sendMessage(long chatID, String text) {
         SendMessage sendMessage = new SendMessage(chatID, text);
         ReplyKeyboardMarkup replyKeyboardMarkup = createMainKeyboard();
@@ -234,6 +266,15 @@ public class Bot {
             bot.execute(deleteMessage);
             System.out.println("Message Deleted!");
         }
+    }
+    void callbackForBringOut(Update update) {
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(update.callbackQuery().id());
+        answerCallbackQuery.text(MessageCreator.getBringOutCallback());
+        answerCallbackQuery.showAlert(true);
+        bot.execute(answerCallbackQuery);
+    }
+    void callbackForNotifications(Update update){
+
     }
     void callbackForSoon(Update update) {
         AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(update.callbackQuery().id());
