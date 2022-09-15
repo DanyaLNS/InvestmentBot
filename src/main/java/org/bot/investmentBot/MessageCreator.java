@@ -3,6 +3,7 @@ package org.bot.investmentBot;
 import com.pengrad.telegrambot.model.Update;
 
 import java.sql.Time;
+import java.util.Date;
 
 public class MessageCreator {
 
@@ -18,12 +19,12 @@ public class MessageCreator {
                 "\uD83E\uDDED Время до сбора средств: " + remainingTime;
     }
 
-    public static String getWalletText(Update update, Time remainingTime, float balance, long partner) {
+    public static String getWalletText(Update update, Date profileCreate, float balance, long partner) {
         return String.format(
                 "\uD83E\uDD16 Ваш ID: %d\n" +
                         "\uD83D\uDCC6 Профиль создан: %s\n\n" +
                         "\uD83D\uDCB3 Ваш баланс: %.2f\n" +
-                        "\uD83D\uDC65 Партнеров: %d чел.", update.message().from().id(), remainingTime, balance, partner);
+                        "\uD83D\uDC65 Партнеров: %d чел.", update.message().from().id(), profileCreate, balance, partner);
     }
 
     public static String getPartnersText(float deposit, long partners, String referalLink, String outerReferalLink) {
@@ -52,22 +53,22 @@ public class MessageCreator {
                 "▪️ Онлайн: %d", daysOfWork, amountOfInvestors, newInvestors, onlineInvestors);
     }
 
-    public static String getCaclulatorText(float sum, float percent) {
+    public static String getCaclulatorText(float sum, double percent) {
         double day = compoundInterest(sum, percent, 1);
         double mounth = compoundInterest(sum, percent, 30);
         double year = compoundInterest(sum, percent, 360);
 
         return String.format("\uD83D\uDCB1 В данном разделе Вы сумеете рассчитать Вашу прибыль, от суммы вашей инвестиции в наш проект:\n" +
                 "\n" +
-                "\uD83D\uDCB5 Ваша инвестиция: %f₽\n" +
+                "\uD83D\uDCB5 Ваша инвестиция: %.1f₽\n" +
                 "\n" +
-                "▪️ Прибыль в сутки: %f₽\n" +
-                "▪️ Прибыль в месяц: %f₽\n" +
-                "▪️ Прибыль в год: %f₽", sum, day, mounth, year);
+                "▪️ Прибыль в сутки: %.1f₽\n" +
+                "▪️ Прибыль в месяц: %.1f₽\n" +
+                "▪️ Прибыль в год: %.1f₽", sum, day, mounth, year);
     }
 
-    private static double compoundInterest(float sum, float percent, int period) {
-        return Math.round(sum * Math.pow((1 + 0.01 * percent), period));
+    private static double compoundInterest(float sum, double percent, int period) {
+        return sum * percent * period / 100;
     }
 
     public static String getInvestCallback() {
@@ -81,4 +82,6 @@ public class MessageCreator {
     public static String getSoonCallback() {
         return "Этот раздел будет доступен позже";
     }
+
+    public static String getBringOutCallback() { return "\uD83D\uDEABПополните баланс, минимальная сумма вывода от 10.0₽"; }
 }
