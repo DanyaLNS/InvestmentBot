@@ -13,24 +13,30 @@ import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.Time;
+import java.text.*;
+import java.util.Locale;
+import java.util.Properties;
 
 
 public class Bot {
+    long id;
+    float balance;
 
-    float deposit = 500000;
-    float savings = 100;
-    float balance = 0;
-    int partners = 0;
-
-    Time remainingTime = new Time(1, 5, 6);
+    float deposit;
+    float savings;
+    Time remainingTime;
+    Date profileCreate;
+    boolean isBanned;
+    long partner;
 
     File file = new File("LOG.txt");
 
     static TelegramBot bot = new TelegramBot("5680309518:AAELs3qdKsAB5vlEaYjtnDIpNeYryZeRFXw");
-
 
     static String buttons[] = {"\uD83D\uDDA5 Инвестиции", "\uD83D\uDCB3 Кошелёк", "⚙️ Настройки", "\uD83D\uDC54 Партнёрам", "\uD83D\uDCE0 Калькулятор", "\uD83D\uDDD3 Обучение"};
 
@@ -43,7 +49,11 @@ public class Bot {
     }
 
     public void rss(Update update) {
-        String investText = MessageCreator.getInvestText(deposit, savings, remainingTime);
+
+        String tempPropPath = getClientPropPath(update);
+        Properties tempProp = createProperties(tempPropPath);
+        initValues(tempProp);
+
 
         System.err.println("Update is working!");
 
@@ -57,21 +67,21 @@ public class Bot {
                     sendStartMessage(update);
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDDA5 Инвестиции")) {
-                    sendInvestmentMessage(update, investText);
+                    sendInvestmentMessage(update);
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDCB3 Кошелёк")) {
                     sendWalletMessage(update);
                 } else if (text.equals("⚙️ Настройки")) {
-                    // TODO Реализовать функционал настроек
+                    sendSettingsMessage(update);
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDC54 Партнёрам")) {
-                    // TODO Реализовать функционал партнерам
+                    sendPartnerMessage(update);
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDCE0 Калькулятор")) {
-                    // TODO Реализовать функционал калькулятора
+                    sendCalculatorMessage(update);
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDDD3 Обучение")) {
-                    // TODO Реализовать функционал обучения
+                    sendTrainingMessage(update);
                     System.err.println("Sending Message");
                 }
             }
@@ -80,9 +90,50 @@ public class Bot {
             if (update.callbackQuery().data().equals("INVEST")) {
                 callbackForInvest(update);
             } else if (update.callbackQuery().data().equals("FLUSH")) {
-               callbackForFlush(update);
+                callbackForFlush(update);
             }
             logUpdate(update);
+        }
+    }
+
+    String getClientPropPath(Update update) {
+        id = update.message().chat().id();
+        String tempClientPropPath = DataBase.getPathToPropFile(id);
+        return tempClientPropPath;
+    }
+
+    Properties createProperties(String propPath) {
+        Properties prop = new Properties();
+        try (FileInputStream fileInputStream = new FileInputStream(propPath)) {
+            prop.load(fileInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return prop;
+    }
+
+    void initValues(Properties prop) {
+        // Необходимо для корректной конвертации типа float
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setDecimalSeparator(',');
+        DecimalFormat format = new DecimalFormat("0.#");
+        format.setDecimalFormatSymbols(symbols);
+
+        DateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("EEE MMMM d HH:MM:SS z yyyy", Locale.ENGLISH);
+
+        try {
+            id = Long.parseLong(prop.getProperty("id"));
+            balance = format.parse(prop.getProperty("balance")).floatValue();
+            deposit = format.parse(prop.getProperty("deposit")).floatValue();
+            savings = format.parse(prop.getProperty("savings")).floatValue();
+            remainingTime = new Time(timeFormatter.parse(prop.getProperty("remainingTime")).getTime());
+            profileCreate = new Date(dateFormatter.parse(prop.getProperty("profileCreate")).getTime());
+            isBanned = Boolean.getBoolean(prop.getProperty("isBanned"));
+            partner = Long.parseLong(prop.getProperty("partner"));
+        } catch (ParseException ex) {
+            System.err.println("Parse exception");
+            ex.printStackTrace();
         }
     }
 
@@ -90,7 +141,9 @@ public class Bot {
         System.err.println(update);
         sendMessage(update.message().chat().id(), "©️Главное меню");
     }
-    void sendInvestmentMessage(Update update, String investText) {
+
+    void sendInvestmentMessage(Update update) {
+        String investText = MessageCreator.getInvestText(deposit, savings, remainingTime);
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), investText);
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton investButton = new InlineKeyboardButton("➕").callbackData("INVEST");
@@ -99,9 +152,56 @@ public class Bot {
         sendMessage.replyMarkup(keyboardMarkup);
         bot.execute(sendMessage);
     }
-    void sendWalletMessage(Update update){
-        String messageText = MessageCreator.getWalletText(update, remainingTime, balance, partners);
-        sendMessage(update.message().chat().id(), messageText);
+
+    void sendWalletMessage(Update update) {
+        String messageText = MessageCreator.getWalletText(update, remainingTime, balance, partner);
+        SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        // TODO доделать кол-бэки
+        InlineKeyboardButton investButton = new InlineKeyboardButton("Пополнить").callbackData("SOON");
+        InlineKeyboardButton flushButton = new InlineKeyboardButton("Вывести").callbackData("SOON");
+        keyboardMarkup.addRow(investButton, flushButton);
+        sendMessage.replyMarkup(keyboardMarkup);
+        bot.execute(sendMessage);
+    }
+    void sendSettingsMessage(Update update){
+        String messageText = MessageCreator.getSettingsText(0,0,0,0);
+        SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        // TODO доделать кол-бэки
+        InlineKeyboardButton notificationsButton = new InlineKeyboardButton("Уведомления").callbackData("SOON");
+        InlineKeyboardButton operationButton = new InlineKeyboardButton("Операции").callbackData("SOON");
+        InlineKeyboardButton informationButton = new InlineKeyboardButton("Информация").callbackData("SOON");
+        InlineKeyboardButton agreementButton = new InlineKeyboardButton("Соглашение").callbackData("SOON");
+        keyboardMarkup.addRow(notificationsButton, operationButton, informationButton, agreementButton);
+        sendMessage.replyMarkup(keyboardMarkup);
+        bot.execute(sendMessage);
+    }
+    void sendPartnerMessage(Update update) {
+        // TODO вставить ссылки после дополнения реферальной системы
+        String messageText = MessageCreator.getPartnersText(deposit, partner, "", "");
+        SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton partnerButton = new InlineKeyboardButton("➕ Как набрать партнеров?").callbackData("SOON");
+        InlineKeyboardButton coopButton = new InlineKeyboardButton("Сотрудничество с нами").callbackData("SOON");
+        keyboardMarkup.addRow(partnerButton, coopButton);
+        sendMessage.replyMarkup(keyboardMarkup);
+        bot.execute(sendMessage);
+    }
+    void sendCalculatorMessage(Update update){
+        String messageText = "Введите сумму, которую хотите рассчитать: ";
+        SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
+        bot.execute(sendMessage);
+        // TODO реализовать продолжение этого сообщения
+    }
+    void sendTrainingMessage(Update update){
+        String messageText = "\u2060 \uD83C\uDF93 Попал в бота, но не знаешь, что делать? Тогда ознакомься с нашим минутным обучением:";
+        SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton trainingButton = new InlineKeyboardButton("➕ Открыть обучение").callbackData("SOON");
+        keyboardMarkup.addRow(trainingButton);
+        sendMessage.replyMarkup(keyboardMarkup);
+        bot.execute(sendMessage);
     }
     private void sendMessage(long chatID, String text) {
         SendMessage sendMessage = new SendMessage(chatID, text);
@@ -110,13 +210,14 @@ public class Bot {
         bot.execute(sendMessage);
     }
 
-    void callbackForInvest(Update update){
+    void callbackForInvest(Update update) {
         AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(update.callbackQuery().id());
         answerCallbackQuery.text(MessageCreator.getInvestCallback());
         answerCallbackQuery.showAlert(true);
         bot.execute(answerCallbackQuery);
     }
-    void callbackForFlush(Update update){
+
+    void callbackForFlush(Update update) {
         if (savings <= 0) {
             AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(update.callbackQuery().id());
             answerCallbackQuery.text(MessageCreator.getFlushCallback());
@@ -134,7 +235,14 @@ public class Bot {
             System.out.println("Message Deleted!");
         }
     }
-    void logUpdate(Update update){
+    void callbackForSoon(Update update) {
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(update.callbackQuery().id());
+        answerCallbackQuery.text(MessageCreator.getSoonCallback());
+        answerCallbackQuery.showAlert(true);
+        bot.execute(answerCallbackQuery);
+    }
+
+    void logUpdate(Update update) {
         try {
             String updateS = update.toString();
             FileWriter writer = new FileWriter(file);
@@ -145,6 +253,7 @@ public class Bot {
             throw new RuntimeException(e);
         }
     }
+
     static ReplyKeyboardMarkup createMainKeyboard() {
         KeyboardButton button0 = new KeyboardButton(buttons[0]);
         KeyboardButton button1 = new KeyboardButton(buttons[1]);
