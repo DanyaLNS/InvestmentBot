@@ -31,9 +31,10 @@ public class DataBase {
         Date profileCreate = new Date();
         boolean isBanned = false;
         long partner = 0;
+        String condition = "default";
         String prop = fillFile(id, balance, deposit,
                 savings, remainingTime, profileCreate,
-                isBanned, partner);
+                isBanned, partner, condition);
         FileWriter writer = new FileWriter(file);
         writer.write(prop);
         writer.flush();
@@ -42,7 +43,7 @@ public class DataBase {
 
     private static String fillFile(long id, float balance, float deposit,
                                    float savings, Time remainingTime, Date profileCreate,
-                                   boolean isBanned, long partner) {
+                                   boolean isBanned, long partner, String condition) {
         return String.format("""
                         id = %d
                         balance = %f
@@ -52,31 +53,23 @@ public class DataBase {
                         profileCreate = %s
                         isBanned = %b
                         partner = %d
+                        condition = %s
                         """,
-                id, balance, deposit, savings, remainingTime, profileCreate, isBanned, partner);
+                id, balance, deposit, savings, remainingTime, profileCreate, isBanned, partner, condition);
     }
 
     public static void rewriteVariables(String fileName, long id, float balance, float deposit,
                                         float savings, Time remainingTime, Date profileCreate,
-                                        boolean isBanned, long partner) {
-        try (FileInputStream in = new FileInputStream(fileName);
-             FileOutputStream out = new FileOutputStream(fileName)) {
-            Properties props = new Properties();
-            props.load(in);
-
-            props.setProperty("id", Long.toString(id));
-            props.setProperty("balance", Float.toString(balance));
-            props.setProperty("deposit", Float.toString(deposit));
-            props.setProperty("savings", Float.toString(savings));
-            props.setProperty("remainingTime", remainingTime.toString());
-            props.setProperty("profileCreate", profileCreate.toString());
-            props.setProperty("isBanned", Boolean.toString(isBanned));
-            props.setProperty("partner", Long.toString(partner));
-
-            props.store(out, null);
-        } catch (FileNotFoundException ex) {
-            System.err.println("File not found");
-            ex.printStackTrace();
+                                        boolean isBanned, long partner, String condition) {
+        try {
+            File file = new File(fileName);
+            String prop = fillFile(id, balance, deposit,
+                    savings, remainingTime, profileCreate,
+                    isBanned, partner, condition);
+            FileWriter writer = new FileWriter(file);
+            writer.write(prop);
+            writer.flush();
+            writer.close();
         } catch (IOException ex) {
             System.err.println("IO exception");
             ex.printStackTrace();
