@@ -7,7 +7,7 @@ import java.util.Properties;
 
 
 public class DataBase {
-    final static String PATH_TO_RESOURCES = "resources/";
+    final static String PATH_TO_RESOURCES = "D:\\#Doston\\#Java\\InvestmentBot\\resources\\";
 
     public static String getPathToPropFile(long id){
         String fileName = id + ".properties";
@@ -15,17 +15,20 @@ public class DataBase {
         try {
             if (file.createNewFile()) {
                 createNewPropFile(file, id);
+                System.out.println("NEW USER ADDED!");
+
             }
         } catch (IOException ex){
             System.err.println("IO ex");
+            ex.printStackTrace();
         } finally {
             return PATH_TO_RESOURCES + fileName;
         }
     }
     private static void createNewPropFile(File file, long id) throws IOException{
-        float balance = 0;
+        float balance = 300;
         float deposit = 0;
-        float savings = 0;
+        float savings = 30;
         Time remainingTime = new Time(0,0,0);
         Date profileCreate = new Date();
         boolean isBanned = false;

@@ -1,11 +1,11 @@
-Update{update_id=450726775
+Update{update_id=450726869
  message=null
  edited_message=null
  channel_post=null
  edited_channel_post=null
  inline_query=null
  chosen_inline_result=null
- callback_query=CallbackQuery{id='5059518407453277177'
+ callback_query=CallbackQuery{id='5059518408379454094'
  from=User{id=1178010927
  is_bot=false
  first_name='Вечное забвение'
@@ -17,7 +17,7 @@ Update{update_id=450726775
  can_join_groups=null
  can_read_all_group_messages=null
  supports_inline_queries=null}
- message=Message{message_id=189
+ message=Message{message_id=329
  from=User{id=5663048702
  is_bot=true
  first_name='INEL'
@@ -30,7 +30,7 @@ Update{update_id=450726775
  can_read_all_group_messages=null
  supports_inline_queries=null}
  sender_chat=null
- date=1662807747
+ date=1663257426
  chat=Chat{id=1178010927
  type=Private
  first_name='Вечное забвение'
@@ -73,10 +73,10 @@ Update{update_id=450726775
 ? Время доходности: 24 часа
 ? Срок вклада: Пожизненно
 
-? Ваш вклад: 500000.00?
-? Накопление: 10000.00?
+? Ваш вклад: 0.00?
+? Накопление: 30.00?
 
-? Время до сбора средств: 01:05:06'
+? Время до сбора средств: 00:00:00'
  entities=null
  caption_entities=null
  audio=null

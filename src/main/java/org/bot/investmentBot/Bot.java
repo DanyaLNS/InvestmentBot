@@ -35,8 +35,10 @@ public class Bot {
     long partner;
 
     File file = new File("LOG.txt");
+    File dataFilesPath = new File(DataBase.PATH_TO_RESOURCES);
+    
 
-    static TelegramBot bot = new TelegramBot("5680309518:AAELs3qdKsAB5vlEaYjtnDIpNeYryZeRFXw");
+    static TelegramBot bot = new TelegramBot("5663048702:AAEwHRRut1Nib4nuEK3yDizZVj9c3QC8v28");
 
     static String buttons[] = {"\uD83D\uDDA5 Инвестиции", "\uD83D\uDCB3 Кошелёк", "⚙️ Настройки", "\uD83D\uDC54 Партнёрам", "\uD83D\uDCE0 Калькулятор", "\uD83D\uDDD3 Обучение"};
 
@@ -53,18 +55,31 @@ public class Bot {
         String tempPropPath = getClientPropPath(update);
         Properties tempProp = createProperties(tempPropPath);
         initValues(tempProp);
-
-
+        
+        
         System.err.println("Update is working!");
 
         if (update.message() != null) {
+            for (int i = 0; i < dataFilesPath.list().length; i++) {
+                if (dataFilesPath.list()[i].startsWith(update.message().chat().id().toString())){
+                    System.out.println("ADMIN mEssage send X");
+
+                }else {
+                    AdminPanel.newUser(update, bot);
+                    System.out.println("ADMIN MESSAGE SEND!");
+                }
+            }
             System.err.println("MessageData");
             if (!update.message().text().isEmpty()) {
 
                 String text = update.message().text();
 
-                if (text.equals("/start")) {
+                /*if (update.message().chat().id() == 1178010927){
+                    AdminPanel.sendMessageForAdmin("Добро пожаловать в Админ панель!", bot);
+                }else*/ if (text.equals("/start")) {
+
                     sendStartMessage(update);
+
                     System.err.println("Sending Message");
                 } else if (text.equals("\uD83D\uDDA5 Инвестиции")) {
                     sendInvestmentMessage(update);
@@ -97,7 +112,7 @@ public class Bot {
     }
 
     String getClientPropPath(Update update) {
-        id = update.message().chat().id();
+        id = update.message() != null ? update.message().chat().id() : update.callbackQuery().from().id();
         String tempClientPropPath = DataBase.getPathToPropFile(id);
         return tempClientPropPath;
     }

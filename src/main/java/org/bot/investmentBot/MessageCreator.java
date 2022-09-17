@@ -81,4 +81,5 @@ public class MessageCreator {
     public static String getSoonCallback() {
         return "Этот раздел будет доступен позже";
     }
+
 }
