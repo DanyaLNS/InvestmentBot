@@ -1,41 +1,23 @@
-Update{update_id=450726775
- message=null
- edited_message=null
- channel_post=null
- edited_channel_post=null
- inline_query=null
- chosen_inline_result=null
- callback_query=CallbackQuery{id='5059518407453277177'
+Update{update_id=450726978
+ message=Message{message_id=538
  from=User{id=1178010927
  is_bot=false
- first_name='Вечное забвение'
+ first_name='Разработчик'
  last_name='null'
- username='Please_Let_Me_Down_Slowly'
+ username='null'
  language_code='ru'
  is_premium='null'
  added_to_attachment_menu='null'
  can_join_groups=null
  can_read_all_group_messages=null
  supports_inline_queries=null}
- message=Message{message_id=189
- from=User{id=5663048702
- is_bot=true
- first_name='INEL'
- last_name='null'
- username='InelRobot'
- language_code='null'
- is_premium='null'
- added_to_attachment_menu='null'
- can_join_groups=null
- can_read_all_group_messages=null
- supports_inline_queries=null}
  sender_chat=null
- date=1662807747
+ date=1663494389
  chat=Chat{id=1178010927
  type=Private
- first_name='Вечное забвение'
+ first_name='Разработчик'
  last_name='null'
- username='Please_Let_Me_Down_Slowly'
+ username='null'
  title='null'
  photo=null
  bio='null'
@@ -66,17 +48,7 @@ Update{update_id=450726775
  has_protected_content=null
  media_group_id='null'
  author_signature='null'
- text='?? Открывайте свой вклад ниже
- а после получайте прибыль с него и собирайте ее в данном разделе:
-
-? Процент от вклада: 4.2%
-? Время доходности: 24 часа
-? Срок вклада: Пожизненно
-
-? Ваш вклад: 500000.00?
-? Накопление: 10000.00?
-
-? Время до сбора средств: 01:05:06'
+ text='? Кошелёк'
  entities=null
  caption_entities=null
  audio=null
@@ -115,29 +87,14 @@ Update{update_id=450726775
  video_chat_ended=null
  video_chat_participants_invited=null
  video_chat_scheduled=null
- reply_markup=InlineKeyboardMarkup{inline_keyboard=[[InlineKeyboardButton{text='?'
- url='null'
- login_url=null
- callback_data='INVEST'
- switch_inline_query='null'
- switch_inline_query_current_chat='null'
- callback_game=null
- pay=null
- web_app=null}
- InlineKeyboardButton{text='?'
- url='null'
- login_url=null
- callback_data='FLUSH'
- switch_inline_query='null'
- switch_inline_query_current_chat='null'
- callback_game=null
- pay=null
- web_app=null}]]}
+ reply_markup=null
  web_app_data=null}
- inline_message_id='null'
- chat_instance='-6793084079974626136'
- data='FLUSH'
- game_short_name='null'}
+ edited_message=null
+ channel_post=null
+ edited_channel_post=null
+ inline_query=null
+ chosen_inline_result=null
+ callback_query=null
  shipping_query=null
  pre_checkout_query=null
  poll=null

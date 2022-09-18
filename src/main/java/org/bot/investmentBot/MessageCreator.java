@@ -21,7 +21,7 @@ public class MessageCreator {
                 "\uD83E\uDDED Время до сбора средств: " + remainingTime;
     }
 
-    public static String getWalletText(Update update, Date profileCreate, float balance, long partner) {
+    public static String getWalletText(Update update, String profileCreate, float balance, long partner) {
         return String.format(
                 "\uD83E\uDD16 Ваш ID: %d\n" +
                         "\uD83D\uDCC6 Профиль создан: %s\n\n" +

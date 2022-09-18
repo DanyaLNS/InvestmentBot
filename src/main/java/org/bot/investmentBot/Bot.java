@@ -18,14 +18,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Time;
 import java.text.*;
-import java.util.Locale;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Properties;
 
 
 public class Bot {
     // TODO изменить константы актуальными значениями
-    static final String BOT_TOKEN = "5680309518:AAELs3qdKsAB5vlEaYjtnDIpNeYryZeRFXw";
+    static final String BOT_TOKEN = "5663048702:AAEwHRRut1Nib4nuEK3yDizZVj9c3QC8v28";
     final long ADMIN_ID = 1003046931;
     final String TRAINING_LINK = "https://telegra.ph/OBUCHENIE-BOTA-06-06";
     final String AGREEMENT_LINK = "https://telegra.ph/Licenziya-platformy-NL4-05-16";
@@ -34,14 +34,14 @@ public class Bot {
     float bringOutSum;
     float addSum;
     String bringOutAccount;
-
+    String profileCreate;
     long id;
     float balance;
 
     float deposit;
     float savings;
     Time remainingTime;
-    Date profileCreate;
+
     boolean isBanned;
     long partner;
     /**
@@ -98,8 +98,8 @@ public class Bot {
         id = update.message().chat().id();
         String tempPropPath = getClientPropPath(update);
         Properties tempProp = createProperties(tempPropPath);
-        DataBase.rewriteVariables(tempPropPath, id, balance, deposit, savings, remainingTime,
-                profileCreate, isBanned, partner, condition);
+        DataBase.rewriteVariables(tempPropPath, id, balance, deposit, savings, remainingTime, isBanned,
+                                  partner, condition);
         initValues(tempProp);
     }
 
@@ -136,10 +136,7 @@ public class Bot {
             // TODO решить проблему с парсингом и этого времени
             remainingTime = new Time(timeFormatter.parse(prop.getProperty("remainingTime")).getTime());
             // TODO решить проблему с profilecreate
-            System.out.println(prop.getProperty("profileCreate"));
-            SimpleDateFormat formatter = new SimpleDateFormat("EEE MMMM d HH:MM:SS z yyyy", Locale.ENGLISH);
-            profileCreate = formatter.parse(prop.getProperty("profileCreate"));
-            System.out.println(profileCreate);
+            profileCreate = prop.getProperty("profileCreate");
             isBanned = Boolean.getBoolean(prop.getProperty("isBanned"));
             partner = Long.parseLong(prop.getProperty("partner"));
             condition = prop.getProperty("condition");
