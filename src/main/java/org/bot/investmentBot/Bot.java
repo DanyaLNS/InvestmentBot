@@ -18,19 +18,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Time;
 import java.text.*;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Properties;
 
 
 public class Bot {
     // TODO изменить константы актуальными значениями
     static final String BOT_TOKEN = "5663048702:AAEwHRRut1Nib4nuEK3yDizZVj9c3QC8v28";
-    final long ADMIN_ID = 1003046931;
+    final long ADMIN_ID = 1178010927;
     final String TRAINING_LINK = "https://telegra.ph/OBUCHENIE-BOTA-06-06";
     final String AGREEMENT_LINK = "https://telegra.ph/Licenziya-platformy-NL4-05-16";
     final String PARTNERS_INFO_LINK = "https://telegra.ph/PARTNERSKAYA-SISTEMA-06-06";
     final double PERCENT = 4.2;
+    String QIWI_REQUISITES = "79600780143";
+    String PAYEER_REQUISITES = "P1075229073";
     float bringOutSum;
     float addSum;
     String bringOutAccount;
@@ -162,10 +162,6 @@ public class Bot {
             bringOutAccount = update.message().text();
             sendBringOutEndMessage(update);
             sendBringOutToAdminMessage(update);
-        } else if (condition.equals("add_step1")) {
-            addSum = Float.parseFloat(update.message().text());
-            sendAddToClientMessage(update);
-            sendAddToAdminMessage(update);
         }
     }
 
@@ -208,6 +204,8 @@ public class Bot {
             callbackForNotifications(update);
         } else if (update.callbackQuery().data().equals("SOON")) {
             callbackForSoon(update);
+        } else if (update.callbackQuery().data().equals("QIWI_ADD")) {
+            callBackForQIWI(update);
         }
     }
 
@@ -244,23 +242,6 @@ public class Bot {
                 Пользователь: %d
                 Транзакция: вывод
                 Номер счета:  %s""", id, bringOutAccount);
-        SendMessage sendMessage = new SendMessage(ADMIN_ID, messageText);
-        bot.execute(sendMessage);
-    }
-
-    void sendAddToClientMessage(Update update) {
-        condition = "default";
-        String messageText = "Ваша заявка на пополнение принята! Ожидайте ответа менеджера!";
-        SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
-        bot.execute(sendMessage);
-    }
-
-    void sendAddToAdminMessage(Update update) {
-        String messageText = String.format("""
-                Пользователь: %d
-                Транзакция: пополнение
-                """, id
-        );
         SendMessage sendMessage = new SendMessage(ADMIN_ID, messageText);
         bot.execute(sendMessage);
     }
@@ -385,10 +366,17 @@ public class Bot {
     }
 
     void callBackForAddMoney(Update update) {
-        condition = "add_step1";
-        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(update.callbackQuery().id());
-        String messageText = "Введите сумму, на которую хотите пополнить счет: ";
-        sendMessage(update.callbackQuery().from().id(), messageText);
+        SendMessage message = new SendMessage(update.callbackQuery().from().id(), MessageCreator.getAddMoneyCallBackText());
+        InlineKeyboardButton Qiwi = new InlineKeyboardButton("▪️Qiwi").callbackData("QIWI_ADD");
+        InlineKeyboardButton Payeer = new InlineKeyboardButton("▪️Payeer").callbackData("PAYEER_ADD");
+        InlineKeyboardButton BankCard = new InlineKeyboardButton("▪️Банковская карта").callbackData("BANKCARD_ADD");
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        markup.addRow(Qiwi);
+        markup.addRow(Payeer);
+        markup.addRow(BankCard);
+        message.replyMarkup(markup);
+        bot.execute(message);
+        deleteMessage(update.callbackQuery().from().id(), update.callbackQuery().message().messageId());
     }
 
     void callbackForNotifications(Update update) {
@@ -400,6 +388,26 @@ public class Bot {
         answerCallbackQuery.text(MessageCreator.getSoonCallback());
         answerCallbackQuery.showAlert(true);
         bot.execute(answerCallbackQuery);
+    }
+
+    void callBackForQIWI(Update update){
+
+        SendMessage message = new SendMessage(update.callbackQuery().from().id(), String.format("\uD83D\uDCE5 Для совершения пополнения через QIWI кошелек, переведите нужную сумму средств на номер карты указанный ниже, оставив при этом индивидуальный комментарий перевода:\n" +
+                "\n" +
+                "\uD83D\uDCB3 Реквизиты бота: \"%s\".\n" +
+                "\uD83D\uDCAC Коментарий к переводу: \"%d\".", QIWI_REQUISITES, update.callbackQuery().from().id()));
+        message.replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton("\uD83D\uDD04 Проверить транзакцию").callbackData("CHEK_TRANSACTION")));
+        bot.execute(message);
+
+    }
+
+    void callBackForPAYEER(Update update){
+        SendMessage message = new SendMessage(update.callbackQuery().from().id(), String.format("\uD83D\uDCE5 Для совершения пополнения через QIWI кошелек, переведите нужную сумму средств на номер карты указанный ниже, оставив при этом индивидуальный комментарий перевода:\n" +
+                "\n" +
+                "\uD83D\uDCB3 Реквизиты бота: \"%s\".\n" +
+                "\uD83D\uDCAC Коментарий к переводу: \"%d\".", PAYEER_REQUISITES, update.callbackQuery().from().id()));
+        message.replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton("\uD83D\uDD04 Проверить транзакцию").callbackData("CHEK_TRANSACTION")));
+        bot.execute(message);
     }
     /*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<ПРОЧЕЕ>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
@@ -413,6 +421,11 @@ public class Bot {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    void deleteMessage(long chatID, int messageID){
+        DeleteMessage delMessage = new DeleteMessage(chatID, messageID);
+        bot.execute(delMessage);
     }
 
     static ReplyKeyboardMarkup createMainKeyboard() {

@@ -3,9 +3,6 @@ package org.bot.investmentBot;
 import com.pengrad.telegrambot.model.Update;
 
 import java.sql.Time;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class MessageCreator {
 
@@ -86,4 +83,10 @@ public class MessageCreator {
     }
 
     public static String getBringOutCallback() { return "\uD83D\uDEABПополните баланс, минимальная сумма вывода от 10.0₽"; }
+
+    public static String getAddMoneyCallBackText(){
+        return "\uD83D\uDCE4 Выберите платежную систему на которую хотите совершить перевод для пополнение средств в бота \n" +
+                "\n" +
+                "▪️Моментальные зачисление, а также автоматическая конверсия.";
+    }
 }

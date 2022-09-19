@@ -1,5 +1,5 @@
-Update{update_id=450726978
- message=Message{message_id=538
+Update{update_id=450726999
+ message=Message{message_id=565
  from=User{id=1178010927
  is_bot=false
  first_name='Разработчик'
@@ -12,7 +12,7 @@ Update{update_id=450726978
  can_read_all_group_messages=null
  supports_inline_queries=null}
  sender_chat=null
- date=1663494389
+ date=1663606670
  chat=Chat{id=1178010927
  type=Private
  first_name='Разработчик'
