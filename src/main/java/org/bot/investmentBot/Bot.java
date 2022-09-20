@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Time;
 import java.text.*;
+import java.util.Date;
 import java.util.Properties;
 
 
@@ -29,6 +30,7 @@ public class Bot {
     final String AGREEMENT_LINK = "https://telegra.ph/Licenziya-platformy-NL4-05-16";
     final String PARTNERS_INFO_LINK = "https://telegra.ph/PARTNERSKAYA-SISTEMA-06-06";
     final double PERCENT = 4.2;
+    final Date dateOfBotStart = new Date();
     String QIWI_REQUISITES = "79600780143";
     String PAYEER_REQUISITES = "P1075229073";
     float bringOutSum;
@@ -40,7 +42,7 @@ public class Bot {
 
     float deposit;
     float savings;
-    Time remainingTime;
+    long remainingTime;
 
     boolean isBanned;
     long partner;
@@ -134,7 +136,7 @@ public class Bot {
             deposit = format.parse(prop.getProperty("deposit")).floatValue();
             savings = format.parse(prop.getProperty("savings")).floatValue();
             // TODO решить проблему с парсингом и этого времени
-            remainingTime = new Time(timeFormatter.parse(prop.getProperty("remainingTime")).getTime());
+            remainingTime = timeFormatter.parse(prop.getProperty("remainingTime")).getTime();
             // TODO решить проблему с profilecreate
             profileCreate = prop.getProperty("profileCreate");
             isBanned = Boolean.getBoolean(prop.getProperty("isBanned"));
@@ -206,6 +208,12 @@ public class Bot {
             callbackForSoon(update);
         } else if (update.callbackQuery().data().equals("QIWI_ADD")) {
             callBackForQIWI(update);
+        } else if (update.callbackQuery().data().equals("PAYEER_ADD")) {
+            callBackForPAYEER(update);
+        } else if (update.callbackQuery().data().equals("BANKCARD_ADD")) {
+            callBackForBankCard(update);
+        } else if (update.callbackQuery().data().equals("CHECK_TRANSACTION")) {
+            callBackForCheckTransaction(update);
         }
     }
 
@@ -276,7 +284,7 @@ public class Bot {
     }
 
     void sendSettingsMessage(Update update) {
-        String messageText = MessageCreator.getSettingsText(0, 0, 0, 0);
+        String messageText = MessageCreator.getSettingsText(new Date().getDay() - dateOfBotStart.getDate(), 1000, (int) (Math.random() * 1000 / 2 ), (int) (Math.random() * 1000 / 2 ));
         SendMessage sendMessage = new SendMessage(update.message().chat().id(), messageText);
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton notificationsButton = new InlineKeyboardButton("Уведомления").callbackData("SOON");
@@ -396,17 +404,29 @@ public class Bot {
                 "\n" +
                 "\uD83D\uDCB3 Реквизиты бота: \"%s\".\n" +
                 "\uD83D\uDCAC Коментарий к переводу: \"%d\".", QIWI_REQUISITES, update.callbackQuery().from().id()));
-        message.replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton("\uD83D\uDD04 Проверить транзакцию").callbackData("CHEK_TRANSACTION")));
+        message.replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton("\uD83D\uDD04 Проверить транзакцию").callbackData("CHECK_TRANSACTION")));
         bot.execute(message);
 
     }
 
     void callBackForPAYEER(Update update){
-        SendMessage message = new SendMessage(update.callbackQuery().from().id(), String.format("\uD83D\uDCE5 Для совершения пополнения через QIWI кошелек, переведите нужную сумму средств на номер карты указанный ниже, оставив при этом индивидуальный комментарий перевода:\n" +
+        SendMessage message = new SendMessage(update.callbackQuery().from().id(), String.format("\uD83D\uDCE5 Для совершения пополнения через Payeer кошелек, переведите нужную сумму средств на номер карты указанный ниже, оставив при этом индивидуальный комментарий перевода:\n" +
                 "\n" +
                 "\uD83D\uDCB3 Реквизиты бота: \"%s\".\n" +
                 "\uD83D\uDCAC Коментарий к переводу: \"%d\".", PAYEER_REQUISITES, update.callbackQuery().from().id()));
-        message.replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton("\uD83D\uDD04 Проверить транзакцию").callbackData("CHEK_TRANSACTION")));
+        message.replyMarkup(new InlineKeyboardMarkup(new InlineKeyboardButton("\uD83D\uDD04 Проверить транзакцию").callbackData("CHECK_TRANSACTION")));
+        bot.execute(message);
+    }
+
+    void callBackForCheckTransaction(Update update){
+        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery(update.callbackQuery().id());
+        answerCallbackQuery.text("Вы еще не совершили перевод, или ваш платеж обрабатывается!");
+        answerCallbackQuery.showAlert(true);
+        bot.execute(answerCallbackQuery);
+    }
+
+    void callBackForBankCard(Update update){
+        SendMessage message = new SendMessage(update.callbackQuery().from().id(), "Данный способ оплаты будет доступен позже!");
         bot.execute(message);
     }
     /*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<ПРОЧЕЕ>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/

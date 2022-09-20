@@ -6,7 +6,7 @@ import java.sql.Time;
 
 public class MessageCreator {
 
-    public static String getInvestText(float deposit, float savings, Time remainingTime) {
+    public static String getInvestText(float deposit, float savings, long remainingTime) {
         return "▪️ Открывайте свой вклад ниже, а после получайте прибыль с него и собирайте ее в данном разделе:\n" +
                 "\n" +
                 "\uD83D\uDCE0 Процент от вклада: 4.2%\n" +

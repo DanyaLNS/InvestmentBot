@@ -62,7 +62,7 @@ public class DataBase {
     }
 
     private static String fillFile(long id, float balance, float deposit,
-                                   float savings, Time remainingTime, String profileCreate,
+                                   float savings, long remainingTime, String profileCreate,
                                    boolean isBanned, long partner, String condition) {
         return String.format("""
                         id = %d
@@ -80,7 +80,7 @@ public class DataBase {
 
 
     public static void rewriteVariables(String fileName, long id, float balance, float deposit,
-                                        float savings, Time remainingTime,
+                                        float savings, long remainingTime,
                                         boolean isBanned, long partner, String condition) {
         try {
             Properties properties = new Properties();
